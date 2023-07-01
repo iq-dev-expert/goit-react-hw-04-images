@@ -9,19 +9,15 @@ import PropTypes from 'prop-types';
 export function ImageGalleryItem({ largeImg, smallImg, tagImg }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const useToggle = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
     <ImageGalleryItemStyle>
-      <ImageGalleryItemImage src={smallImg} alt={tagImg} onClick={openModal} />
+      <ImageGalleryItemImage src={smallImg} alt={tagImg} onClick={useToggle} />
       {isModalOpen && (
-        <Modal closeModal={closeModal} largeImg={largeImg} tagImg={tagImg} />
+        <Modal closeModal={useToggle} largeImg={largeImg} tagImg={tagImg} />
       )}
     </ImageGalleryItemStyle>
   );
