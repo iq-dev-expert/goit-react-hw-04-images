@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from 'components/Searchbar/Searchbar';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Button } from 'components/Button/Button';
@@ -14,25 +14,24 @@ const reportInfoOptions = {
   width: '420px',
 };
 
-export class App extends Component {
-  state = {
-    imageKeyword: '',
-    page: 1,
-    dataList: [],
-    loading: false,
-    totalImages: 0,
-  };
+export function App() {
+  const [imageKeyword, setImageKeyword] = useState('');
+  const [page, setPage] = useState(1);
+  const [dataList, setDataList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalImages, setTotalImages] = useState(0);
 
-  async componentDidUpdate(_, prevState) {
-    const { imageKeyword, page } = this.state;
+  useEffect(() => {
+    if (imageKeyword === '') {
+      return;
+    }
 
-    if (prevState.imageKeyword !== imageKeyword || prevState.page !== page) {
+    (async () => {
       const KEY_WORD = imageKeyword;
-      this.setState({ loading: true });
+      setLoading(true);
 
       try {
         const { totalImages, images } = await Fetch(KEY_WORD, page);
-
         if (totalImages === 0) {
           Report.failure(
             `Search query by data: ${imageKeyword} not found!`,
@@ -43,12 +42,8 @@ export class App extends Component {
           return;
         }
 
-        this.setState(({ dataList }) => {
-          return {
-            dataList: [...dataList, ...images],
-            totalImages,
-          };
-        });
+        setDataList(prevDataList => [...prevDataList, ...images]);
+        setTotalImages(totalImages);
       } catch (error) {
         Report.failure(
           `Search query by data: ${imageKeyword} not found!`,
@@ -57,33 +52,30 @@ export class App extends Component {
           reportInfoOptions
         );
       } finally {
-        this.setState({ loading: false });
+        setLoading(false);
       }
-    }
-  }
+    })();
+  }, [imageKeyword, page]);
 
-  onSubmit = imageKeyword => {
-    this.setState({ imageKeyword, page: 1, dataList: [], totalImages: 0 });
+  const onSubmit = imageKeyword => {
+    setImageKeyword(imageKeyword);
+    setPage(1);
+    setDataList([]);
+    setTotalImages(0);
   };
 
-  onLoadMoreButtonClick = () => {
-    this.setState({ page: this.state.page + 1 });
+  const onLoadMoreButtonClick = () => {
+    setPage(page + 1);
   };
 
-  render() {
-    const { loading, dataList, totalImages } = this.state;
+  const showButton = !loading && dataList.length !== totalImages;
 
-    const showButton = !loading && dataList.length !== totalImages;
-
-    return (
-      <AppStyle>
-        <Searchbar onSubmit={this.onSubmit} />
-        <Loader isLoading={loading} />
-        {dataList && <ImageGallery dataList={dataList} />}
-        {showButton && (
-          <Button onLoadMoreButtonClick={this.onLoadMoreButtonClick} />
-        )}
-      </AppStyle>
-    );
-  }
+  return (
+    <AppStyle>
+      <Searchbar onSubmit={onSubmit} />
+      <Loader isLoading={loading} />
+      {dataList && <ImageGallery dataList={dataList} />}
+      {showButton && <Button onLoadMoreButtonClick={onLoadMoreButtonClick} />}
+    </AppStyle>
+  );
 }
