@@ -16,14 +16,14 @@ export function Modal({ closeModal, largeImg, tagImg }) {
     }
   };
 
-  const onClick = e => {
+  const onOverlayClick = e => {
     if (e.target === e.currentTarget) {
       closeModal();
     }
   };
 
   return (
-    <Overlay onClick={onClick}>
+    <Overlay onClick={onOverlayClick}>
       <ModalStyle>
         <img src={largeImg} alt={tagImg} />
       </ModalStyle>
