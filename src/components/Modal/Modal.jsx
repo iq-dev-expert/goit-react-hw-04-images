@@ -4,17 +4,17 @@ import PropTypes from 'prop-types';
 
 export function Modal({ closeModal, largeImg, tagImg }) {
   useEffect(() => {
+    const onEscClick = e => {
+      if (e.code === 'Escape') {
+        closeModal();
+      }
+    };
+
     document.addEventListener('keydown', onEscClick);
     return () => {
       document.removeEventListener('keydown', onEscClick);
     };
-  });
-
-  const onEscClick = e => {
-    if (e.code === 'Escape') {
-      closeModal();
-    }
-  };
+  }, [closeModal]);
 
   const onOverlayClick = e => {
     if (e.target === e.currentTarget) {
